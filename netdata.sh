@@ -3,9 +3,10 @@
 echo -e '\e[1;36mServer Status Show Apache Server Status .......................................................OK\e[0m';
 sed -i 's/#ExtendedStatus/ExtendedStatus/' /etc/httpd/conf/extra/httpd-info.conf
 
+
 echo -e '\e[1;36mInstall Netdata (Traffic/CPU Monitoring Graph) http://yourip:19999 ............................OK\e[0m';
 bash <(curl -Ss https://my-netdata.io/kickstart.sh)
-yum install MySQL-python --disableexcludes=all
+yum install -y MySQL-python --disableexcludes=all
 cat <<EOF >>/etc/netdata/python.d/nginx.conf
 local:
   url  : 'http://127.0.0.1/nginx_status'
@@ -36,9 +37,11 @@ cat <<EOF >>/etc/nginx/nginx-info.conf
     location = /netdata {
         return 301 /netdata/;
     }
+
     location ~ /netdata/(?<ndpath>.*) {
         proxy_redirect off;
         proxy_set_header Host \$host;
+
         proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header X-Forwarded-Server \$host;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -47,6 +50,7 @@ cat <<EOF >>/etc/nginx/nginx-info.conf
         proxy_set_header Connection "keep-alive";
         proxy_store off;
         proxy_pass http://netdata/\$ndpath\$is_args\$args;
+
         gzip on;
         gzip_proxied any;
         gzip_types *;
